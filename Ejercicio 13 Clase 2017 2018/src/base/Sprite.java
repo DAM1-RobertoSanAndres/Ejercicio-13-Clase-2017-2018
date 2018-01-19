@@ -24,7 +24,7 @@ public class Sprite {
 	//Variables para la velocidad
 	private int velocidadX;
 	private int velocidadY;
-	
+	private boolean powerUp = false;
 	
 	/**
 	 * Constructor simple para un Sprite sin imagen y sin velocidad.
@@ -147,6 +147,9 @@ public class Sprite {
 	public void pintarSpriteEnMundo(Graphics g){
 		g.drawImage(buffer, posX, posY, null);
 	}
+	public void pintarSpriteEnMundo(Graphics g, int posX, int posY){
+		g.drawImage(buffer, posX, posY, null);
+	}
 		
 	//Métodos para obtener:
 	public int getAncho(){
@@ -209,5 +212,15 @@ public class Sprite {
 		this.color=colorNuevo;
 		actualizarBuffer(null);
 	}
+
+	public boolean isPowerUp() {
+		return powerUp;
+	}
+
+	public void setPowerUp(boolean powerUp) {
+		this.powerUp = powerUp;
+	}
+
+	
 	
 }

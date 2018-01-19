@@ -24,6 +24,7 @@ public class PantallaJuego implements Pantalla {
 	private static final int ALTO_NAVE = 40;
 	private static final int ANCHO_DISPARO = 16;
 	private static final int ALTO_DISPARO = 40;
+	static Graphics gg;
 
 	// Array que almacena todos los cuadrados que se moverán por pantalla.
 	ArrayList<Sprite> asteroides;
@@ -48,10 +49,12 @@ public class PantallaJuego implements Pantalla {
 
 	@Override
 	public void inicializarPantalla() {
+		int asteroideConPower;
+		
 		asteroides = new ArrayList<Sprite>();
 		// Inicializo el array con los 6 asteroides random:
 		Random rd = new Random();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 3; i++) {
 			Sprite creador;
 			int posX = 10;
 			int poxY = 10;
@@ -60,8 +63,12 @@ public class PantallaJuego implements Pantalla {
 			creador = new Sprite(ANCHO_ASTEROIDE, ANCHO_ASTEROIDE, posX, poxY, velocidadX, velocidadY,
 					"Imagenes/asteroide.png");
 			asteroides.add(creador);
+				
 		}
-
+			asteroideConPower = rd.nextInt(asteroides.size())+1;
+		
+		asteroides.get(asteroideConPower).setPowerUp(true);
+		
 		// Cargo la imagen de fondo de pantalla
 		try {
 			fondo = ImageIO.read(new File("Imagenes/galaxia.jpg"));
@@ -86,6 +93,8 @@ public class PantallaJuego implements Pantalla {
 
 	@Override
 	public void renderizarPantalla(Graphics g) {
+		gg=g;
+		
 		rellenarFondo(g);
 		// Pintamos los cuadrados:
 		for (Sprite cuadrado : asteroides) {
@@ -94,7 +103,7 @@ public class PantallaJuego implements Pantalla {
 		if (disparo != null) {
 			disparo.pintarSpriteEnMundo(g);
 		}
-
+		
 		// Pintamos la nave
 		nave.pintarSpriteEnMundo(g);
 
@@ -182,9 +191,27 @@ public class PantallaJuego implements Pantalla {
 	 */
 	public void colisiones() {
 		// El disparo con los asteroides:
+		Random rd = new Random();
 		for (int i = 0; i < asteroides.size() && disparo != null; i++) {
 			if (asteroides.get(i).colisionan(disparo)) {
 				disparo = null;
+				if(asteroides.get(i).getAncho() == ANCHO_ASTEROIDE) {
+					for (int j = 0; j < 2; j++) {
+						int velocidadX = rd.nextInt(10) + 1;
+						int velocidadY = rd.nextInt(10) + 1;
+						Sprite mitad =  new Sprite(asteroides.get(i).getAlto()/2, asteroides.get(i).getAncho()/2, asteroides.get(i).getPosY(), asteroides.get(i).getPosX(),velocidadX, velocidadX,
+								"Imagenes/asteroide.png");
+						asteroides.add(mitad);
+						mitad.pintarSpriteEnMundo(gg, mitad.getPosX(), mitad.getPosY());
+					}
+					if(asteroides.get(i).isPowerUp()) {
+						for (int j = 0; j < asteroides.size(); j++) {
+							asteroides.get(j).setVelocidadX(asteroides.get(j).getVelocidadX()/2);
+							asteroides.get(j).setAceleracionY(asteroides.get(j).getVelocidadY()/2);
+						}
+					}
+					}
+				
 				asteroides.remove(i);
 			}
 		}
