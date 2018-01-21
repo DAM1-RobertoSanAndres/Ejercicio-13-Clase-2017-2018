@@ -87,6 +87,26 @@ public class Sprite {
 			g.dispose();
 		}		
 	}
+public void actualizarBuffer(String ruta, int anchoNuevo, int altoNuevo){
+		
+		//Creo un nuevo buffer del tamaño adecuado
+		buffer = new BufferedImage(anchoNuevo, altoNuevo, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = buffer.getGraphics();
+		
+		//Intento pintarlo con una imagen
+		Image imagenAuxiliar = null;
+		try {
+			imagenAuxiliar = ImageIO.read(new File(ruta));
+			imagenAuxiliar = imagenAuxiliar.getScaledInstance(anchoNuevo, altoNuevo, Image.SCALE_SMOOTH);
+			g.drawImage(imagenAuxiliar, 0, 0, null);
+			return;
+		} catch (Exception e) {
+			// Si no pinto un cuadrado del color por defecto
+			g.setColor(color);
+			g.fillRect(0, 0, ancho, alto);
+			g.dispose();
+		}		
+	}
 	/**
 	 * Método que me permite comprobar si dos Sprites colisionan
 	 * @param otroSprite

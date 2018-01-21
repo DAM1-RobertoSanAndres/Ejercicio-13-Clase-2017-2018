@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.SwingUtilities;
 
 import base.PanelJuego;
@@ -37,7 +42,7 @@ public class PantallaJuego implements Pantalla {
 	double tiempoDeJuego;
 	Font fuenteTiempo;
 	private DecimalFormat formatoDecimal;
-
+	boolean powerDisparo = false;
 	// Variable para el panel:
 	PanelJuego panelJuego;
 
@@ -45,6 +50,7 @@ public class PantallaJuego implements Pantalla {
 		this.panelJuego = panelJuego;
 		inicializarPantalla();
 		redimensionarPantalla();
+		reproducirMusica();
 	}
 
 	@Override
@@ -65,7 +71,7 @@ public class PantallaJuego implements Pantalla {
 			asteroides.add(creador);
 				
 		}
-			asteroideConPower = rd.nextInt(asteroides.size())+1;
+			asteroideConPower = rd.nextInt(asteroides.size());
 		
 		asteroides.get(asteroideConPower).setPowerUp(true);
 		
@@ -139,12 +145,41 @@ public class PantallaJuego implements Pantalla {
 	public void pulsarRaton(MouseEvent e) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			if (disparo == null) { // No tengo disparo, lo creo:
-				disparo = new Sprite(ANCHO_DISPARO, ALTO_DISPARO, e.getX() - ANCHO_DISPARO / 2,
-						e.getY() - ALTO_DISPARO / 2, 0, -10, null);
-				disparo.setColor(Color.GREEN);
+				if(powerDisparo==true) {
+					disparo = new Sprite(ANCHO_DISPARO+20, ALTO_DISPARO+20, e.getX() - (ANCHO_DISPARO+20) / 2,
+							e.getY() - (ALTO_DISPARO+20) / 2, 0, -10, null);
+					disparo.setColor(Color.CYAN);
+				}else {
+					disparo = new Sprite(ANCHO_DISPARO, ALTO_DISPARO, e.getX() - ANCHO_DISPARO / 2,
+							e.getY() - ALTO_DISPARO / 2, 0, -10, null);
+					disparo.setColor(Color.GREEN);
+				}
+				reproducirDisparo();
 			}
 		}
 	}
+
+	private void reproducirDisparo() {
+		       try {
+		        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("sonidos/atat.wav").getAbsoluteFile());
+		        Clip clip = AudioSystem.getClip();
+		        clip.open(audioInputStream);
+		        clip.start();
+		       } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+		         System.out.println("Error al reproducir el sonido.");
+		       }
+		     }		
+	private void reproducirMusica() {
+	       try {
+	        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("sonidos/musica.wav").getAbsoluteFile());
+	        Clip clip = AudioSystem.getClip();
+	        clip.open(audioInputStream);
+	        clip.start();
+	        clip.loop(10);
+	       } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+	         System.out.println("Error al reproducir el sonido.");
+	       }
+	     }		
 
 	@Override
 	public void redimensionarPantalla() {
@@ -205,15 +240,35 @@ public class PantallaJuego implements Pantalla {
 						mitad.pintarSpriteEnMundo(gg, mitad.getPosX(), mitad.getPosY());
 					}
 					if(asteroides.get(i).isPowerUp()) {
-						for (int j = 0; j < asteroides.size(); j++) {
-							asteroides.get(j).setVelocidadX(asteroides.get(j).getVelocidadX()/2);
-							asteroides.get(j).setAceleracionY(asteroides.get(j).getVelocidadY()/2);
-						}
+						elegirPowe();
+						
 					}
 					}
 				
 				asteroides.remove(i);
 			}
 		}
+	}
+
+	private void elegirPowe() {
+		Random rd = new Random();
+		
+		int opcion;
+		opcion = rd.nextInt(3);
+		switch(opcion) {
+		case 1:
+			for (int j = 0; j < asteroides.size(); j++) {
+				asteroides.get(j).setVelocidadX(asteroides.get(j).getVelocidadX()/2);
+				asteroides.get(j).setAceleracionY(asteroides.get(j).getVelocidadY()/2);
+			}
+			break;
+		case 2:
+			nave.actualizarBuffer("Imagenes/nave.png", nave.getAncho()/2, nave.getAlto()/2);
+		break;
+		case 3:
+			powerDisparo=true;
+			break;
+		}	
+		
 	}
 }
